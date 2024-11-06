@@ -4,6 +4,7 @@
     import {Input} from "$lib/components/ui/input";
     import {Label} from "$lib/components/ui/label";
     import {goto} from "$app/navigation";
+    import InputDate from "$lib/components/forms/InputDate.svelte";
 
     // TODO calendar dropdown like this: https://next.shadcn-svelte.com/docs/components/calendar
     //TODO: buggy dragand drop
@@ -105,12 +106,7 @@
 
                 <div class="space-y-2">
                     <Label for="date">Session Date</Label>
-                    <Input
-                            id="date"
-                            type="date"
-                            bind:value={sessionDate}
-                            required
-                    />
+                    <InputDate/>
                 </div>
 
                 <div class="space-y-2">
