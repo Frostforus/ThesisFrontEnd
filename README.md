@@ -1,3 +1,11 @@
+# Konrad Thesis, Transcription frontend
+This is where the user can upload files to be transcribed
+
+# Server Repo
+[https://github.com/Frostforus/ThesisServer/tree/master](https://github.com/Frostforus/ThesisServer/tree/master)
+
+
+
 # sv
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
