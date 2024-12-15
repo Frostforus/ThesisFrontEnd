@@ -6,9 +6,9 @@
         getLocalTimeZone
     } from "@internationalized/date";
     import {cn} from "$lib/utils.js";
-    import {buttonVariants} from "$lib/components/ui/button/index.js";
-    import {Calendar} from "$lib/components/ui/calendar/index.js";
-    import * as Popover from "$lib/components/ui/popover/index.js";
+    import {buttonVariants} from "$lib/components/ui/button";
+    import {Calendar} from "$lib/components/ui/calendar";
+    import * as Popover from "$lib/components/ui/popover";
     import {Input} from "$lib/components/ui/input";
 
     const df = new DateFormatter("en-US", {

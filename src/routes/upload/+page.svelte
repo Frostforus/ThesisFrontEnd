@@ -1,81 +1,51 @@
-<script>
-    import {Button} from "$lib/components/ui/button";
+<script lang="ts">
+    import { superForm } from 'sveltekit-superforms/client';
+    import type { PageData } from './$types';
+    import { Button } from '$lib/components/ui/button';
+    import { Input } from '$lib/components/ui/input';
+    import { Label } from '$lib/components/ui/label';
     import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "$lib/components/ui/card";
-    import {Input} from "$lib/components/ui/input";
-    import {Label} from "$lib/components/ui/label";
-    import {goto} from "$app/navigation";
-    import InputDate from "$lib/components/forms/InputDate.svelte";
+    import InputDate from "$lib/components/forms/inputs/InputDate.svelte";
 
-    // TODO calendar dropdown like this: https://next.shadcn-svelte.com/docs/components/calendar
-    //TODO: buggy dragand drop
-    let files = $state([]);
-    let patientName = $state('');
-    let sessionDate = $state('');
-    let uploading = $state(false);
-    let dragActive = $state(false);
+    export let data: PageData;
 
-    // Derived state for form validation
-    // $derived.isValid = () => {
-    //     return patientName.trim() !== '' &&
-    //         sessionDate !== '' &&
-    //         files.length > 0;
-    // };
+    const { form, errors, enhance, delayed } = superForm(data.form, {
+        multipleSubmits: 'prevent',
+        taintedMessage: null,
+    });
 
-    // File handling functions
-    function handleFileSelect(event) {
-        const fileList = event.target.files;
-        if (fileList?.[0]) {
-            files = Array.from(fileList);
-        }
-    }
+    let dragActive = false;
+    let files: File[] = [];
 
-    function handleDragOver(event) {
-        event.preventDefault();
+    const handleDragOver = (e: DragEvent) => {
+        e.preventDefault();
         dragActive = true;
-    }
+    };
 
-    function handleDragLeave() {
+    const handleDragLeave = () => {
         dragActive = false;
-    }
+    };
 
-    function handleDrop(event) {
-        event.preventDefault();
+    const handleDrop = (e: DragEvent) => {
+        e.preventDefault();
         dragActive = false;
 
-        const fileList = event.dataTransfer?.files;
-        if (fileList?.[0]) {
-            files = Array.from(fileList);
+        if (e.dataTransfer?.files) {
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('audio/')) {
+                files = [file];
+                $form.audioFile = file;
+            }
         }
-    }
+    };
 
-    // async function handleSubmit(event) {
-    //     event.preventDefault();
-    //     if (!$derived.isValid()) return;
-    //
-    //     uploading = true;
-    //     try {
-    //         const formData = new FormData();
-    //         formData.append('audio', files[0]);
-    //         formData.append('patientName', patientName);
-    //         formData.append('sessionDate', sessionDate);
-    //
-    //         // Replace with your actual API endpoint
-    //         const response = await fetch('/api/upload', {
-    //             method: 'POST',
-    //             body: formData
-    //         });
-    //
-    //         if (!response.ok) throw new Error('Upload failed');
-    //
-    //         // Redirect to dashboard on success
-    //         goto('/');
-    //     } catch (error) {
-    //         console.error('Upload error:', error);
-    //         // Add error handling here
-    //     } finally {
-    //         uploading = false;
-    //     }
-    // }
+    const handleFileSelect = (e: Event) => {
+        const target = e.target as HTMLInputElement;
+        if (target.files?.length) {
+            files = [target.files[0]];
+            $form.audioFile = target.files[0];
+        }
+    };
 </script>
 
 <div class="container mx-auto p-6 max-w-2xl">
@@ -92,21 +62,32 @@
             <CardDescription>Upload an audio file for transcription</CardDescription>
         </CardHeader>
         <CardContent>
-            <form class="space-y-6">
+
+
+            <form class="space-y-6" use:enhance method="POST" enctype="multipart/form-data">
                 <div class="space-y-2">
-                    <Label for="patient">Patient Name</Label>
+                    <Label for="patientName">Patient Name</Label>
                     <Input
-                            id="patient"
+                            id="patientName"
                             type="text"
-                            bind:value={patientName}
+                            bind:value={$form.patientName}
                             placeholder="Enter patient name"
-                            required
+                            aria-invalid={$errors.patientName ? 'true' : undefined}
                     />
+                    {#if $errors.patientName}
+                        <p class="text-sm text-destructive">{$errors.patientName}</p>
+                    {/if}
                 </div>
 
                 <div class="space-y-2">
-                    <Label for="date">Session Date</Label>
-                    <InputDate/>
+                    <Label for="sessionDate">Session Date</Label>
+<!--                    <InputDate-->
+<!--                            bind:value={$form.sessionDate}-->
+<!--                            aria-invalid={$errors.sessionDate ? 'true' : undefined}-->
+<!--                    />-->
+                    {#if $errors.sessionDate}
+                        <p class="text-sm text-destructive">{$errors.sessionDate}</p>
+                    {/if}
                 </div>
 
                 <div class="space-y-2">
@@ -114,9 +95,9 @@
                     <div
                             class="border-2 border-dashed rounded-lg p-6 text-center transition-colors"
                             class:border-primary={dragActive}
-                            ondragover={handleDragOver}
-                            ondragleave={handleDragLeave}
-                            ondrop={handleDrop}
+                            on:dragover={handleDragOver}
+                            on:dragleave={handleDragLeave}
+                            on:drop={handleDrop}
                             role="button"
                             aria-label="Upload audio file"
                             tabindex="0"
@@ -125,7 +106,7 @@
                                 id="audio"
                                 type="file"
                                 accept="audio/*"
-                                on:change={handleFileSelect}
+                                onchange={handleFileSelect}
                                 class="hidden"
                         />
                         <Label for="audio" class="cursor-pointer block">
@@ -135,14 +116,17 @@
                                         Drop your audio file here or click to browse
                                     {:else}
                                         Selected: {files[0].name}
-                                        <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                class="ml-2"
-                                                onclick={() => files = []}
-                                        >
-                                            Remove
-                                        </Button>
+<!--                                        <Button-->
+<!--                                                variant="ghost"-->
+<!--                                                size="sm"-->
+<!--                                                class="ml-2"-->
+<!--                                                on:click|preventDefault={() => {-->
+<!--                                    files = [];-->
+<!--                                    $form.audioFile = undefined;-->
+<!--                                }}-->
+<!--                                        >-->
+<!--                                            Remove-->
+<!--                                        </Button>-->
                                     {/if}
                                 </div>
                                 {#if dragActive}
@@ -150,15 +134,18 @@
                                 {/if}
                             </div>
                         </Label>
+                        {#if $errors.audioFile}
+                            <p class="text-sm text-destructive mt-2">{$errors.audioFile}</p>
+                        {/if}
                     </div>
                 </div>
 
                 <Button
                         type="submit"
                         class="w-full"
-                        disabled={uploading }
+                        disabled={$delayed}
                 >
-                    {#if uploading}
+                    {#if $delayed}
                         <div class="animate-spin mr-2">↻</div>
                         Uploading...
                     {:else}
