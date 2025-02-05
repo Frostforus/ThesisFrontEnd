@@ -1,19 +1,19 @@
 <script lang="ts">
-    import { superForm } from 'sveltekit-superforms/client';
-    import type { PageData } from './$types';
-    import { Button } from '$lib/components/ui/button';
-    import { Input } from '$lib/components/ui/input';
-    import { Label } from '$lib/components/ui/label';
+    import {superForm} from 'sveltekit-superforms/client';
+    import type {PageData} from './$types';
+    import {Button} from '$lib/components/ui/button';
+    import {Input} from '$lib/components/ui/input';
+    import {Label} from '$lib/components/ui/label';
     import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "$lib/components/ui/card";
     import InputDate from "$lib/components/forms/inputs/InputDate.svelte";
 
     export let data: PageData;
 
-    const { form, errors, enhance, delayed } = superForm(data.form, {
+    const {form, errors, enhance, delayed} = superForm(data.form, {
         multipleSubmits: 'prevent',
         taintedMessage: null,
     });
-
+    console.log(data.form)
     let dragActive = false;
     let files: File[] = [];
 
@@ -81,10 +81,10 @@
 
                 <div class="space-y-2">
                     <Label for="sessionDate">Session Date</Label>
-<!--                    <InputDate-->
-<!--                            bind:value={$form.sessionDate}-->
-<!--                            aria-invalid={$errors.sessionDate ? 'true' : undefined}-->
-<!--                    />-->
+                    <!--                    <InputDate-->
+                    <!--                            bind:value={$form.sessionDate}-->
+                    <!--                            aria-invalid={$errors.sessionDate ? 'true' : undefined}-->
+                    <!--                    />-->
                     {#if $errors.sessionDate}
                         <p class="text-sm text-destructive">{$errors.sessionDate}</p>
                     {/if}
@@ -116,17 +116,17 @@
                                         Drop your audio file here or click to browse
                                     {:else}
                                         Selected: {files[0].name}
-<!--                                        <Button-->
-<!--                                                variant="ghost"-->
-<!--                                                size="sm"-->
-<!--                                                class="ml-2"-->
-<!--                                                on:click|preventDefault={() => {-->
-<!--                                    files = [];-->
-<!--                                    $form.audioFile = undefined;-->
-<!--                                }}-->
-<!--                                        >-->
-<!--                                            Remove-->
-<!--                                        </Button>-->
+                                        <!--                                        <Button-->
+                                        <!--                                                variant="ghost"-->
+                                        <!--                                                size="sm"-->
+                                        <!--                                                class="ml-2"-->
+                                        <!--                                                on:click|preventDefault={() => {-->
+                                        <!--                                    files = [];-->
+                                        <!--                                    $form.audioFile = undefined;-->
+                                        <!--                                }}-->
+                                        <!--                                        >-->
+                                        <!--                                            Remove-->
+                                        <!--                                        </Button>-->
                                     {/if}
                                 </div>
                                 {#if dragActive}

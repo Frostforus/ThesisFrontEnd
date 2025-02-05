@@ -1,9 +1,10 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
-    import type { PageData } from "./$types";
-    import { Button } from "$lib/components/ui/button";
-    import { Card, CardHeader, CardTitle, CardContent } from "$lib/components/ui/card";
-    import { Mic, FileText, PenTool } from "lucide-svelte";
+    import {goto} from "$app/navigation";
+    import type {PageData} from "./$types";
+    import {Button} from "$lib/components/ui/button";
+    import {Card, CardHeader, CardTitle, CardContent} from "$lib/components/ui/card";
+    import {Mic, FileText, PenTool} from "lucide-svelte";
+    import LogoutButton from "$lib/components/ui/button/LogoutButton.svelte";
 
     const data = $props<PageData>();
 
@@ -16,6 +17,8 @@
         await goto('/dashboard');
         isNavigating = false;
     }
+
+    console.log(data.data);
 </script>
 
 <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white">
@@ -29,22 +32,26 @@
             </p>
 
             <div class="mt-10">
-                {#if data.user}
+                {#if data.data.isAuthenticated}
                     <Button
                             variant="default"
                             size="lg"
                             on:click={handleDashboardClick}
                             disabled={isNavigating}
+                            href="/dashboard"
                     >
                         {isNavigating ? 'Loading...' : 'Go to Dashboard'}
                     </Button>
+
+
+                    <LogoutButton size="lg"/>
                 {:else}
                     <div class="space-x-4">
-                        <Button variant="default" size="lg" asChild>
-                            <a href="/login">Log In</a>
+                        <Button variant="default" size="lg" href="/login">
+                            Log In
                         </Button>
-                        <Button variant="outline" size="lg" asChild>
-                            <a href="/signup">Sign Up</a>
+                        <Button variant="outline" size="lg" href="/signup">
+                            Sign Up
                         </Button>
                     </div>
                 {/if}
@@ -56,7 +63,7 @@
                     <CardHeader>
                         <div class="flex justify-center">
                             <div class="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg">
-                                <Mic class="h-6 w-6 text-white" />
+                                <Mic class="h-6 w-6 text-white"/>
                             </div>
                         </div>
                         <CardTitle class="mt-4">Voice Recording</CardTitle>
@@ -72,7 +79,7 @@
                     <CardHeader>
                         <div class="flex justify-center">
                             <div class="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg">
-                                <FileText class="h-6 w-6 text-white" />
+                                <FileText class="h-6 w-6 text-white"/>
                             </div>
                         </div>
                         <CardTitle class="mt-4">AI Transcription</CardTitle>
@@ -88,7 +95,7 @@
                     <CardHeader>
                         <div class="flex justify-center">
                             <div class="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg">
-                                <PenTool class="h-6 w-6 text-white" />
+                                <PenTool class="h-6 w-6 text-white"/>
                             </div>
                         </div>
                         <CardTitle class="mt-4">Journal Generation</CardTitle>
